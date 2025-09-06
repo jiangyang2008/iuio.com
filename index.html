@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>致 iuio | 星辰梦境版</title>
+  <meta name="description" content="一个梦幻浪漫网页，献给主播 iuio，星空、流星、漂浮粒子，宛如置身星辰梦境。">
+  <meta name="keywords" content="iuio, 主播, 浪漫, 星空, 流星, 粒子, 夜空, 粉丝, 网站">
+  <meta name="robots" content="index, follow">
+  <style>
+    html, body {
+      margin:0; padding:0; overflow:hidden; height:100%;
+      background:#000; font-family:"Helvetica Neue", sans-serif; color:#fff; text-align:center;
+    }
+    canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; }
+    .content { position:relative; top:50%; transform:translateY(-50%); }
+    h1 { font-size:4em; letter-spacing:2px; animation:fadeIn 3s ease-in-out infinite alternate; text-shadow:0 0 20px #fff,0 0 40px #fff,0 0 60px #f0f,0 0 80px #f0f; position:relative; z-index:1; }
+    p { font-size:1.5em; margin-top:20px; animation:fadeIn 5s ease-in-out infinite alternate; text-shadow:0 0 10px #fff,0 0 20px #ff0; position:relative; z-index:1; }
+    @keyframes fadeIn { from{opacity:0.2;} to{opacity:1;} }
+  </style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="content">
+  <h1>致 iuio</h1>
+  <p>在这片星空下，愿你永远闪耀 ✨</p >
+</div>
+
+<!-- 可选音乐 -->
+<!--
+<audio autoplay loop>
+  <source src="你的音乐地址.mp3" type="audio/mpeg">
+</audio>
+-->
+
+<script>
+const canvas=document.getElementById("stars");
+const ctx=canvas.getContext("2d");
+let w,h,stars=[],meteors=[],particles=[];
+
+function resize(){
+  w=canvas.width=window.innerWidth;
+  h=canvas.height=window.innerHeight;
+  stars=[];
+  for(let i=0;i<200;i++){
+    stars.push({
+      x:Math.random()*w,
+      y:Math.random()*h,
+      r:Math.random()*1.5,
+      speed:Math.random()*0.5+0.1
+    });
+  }
+  particles=[];
+  for(let i=0;i<60;i++){
+    particles.push({
+      x:w/2 + (Math.random()-0.5)*300,
+      y:h/2 + (Math.random()-0.5)*100,
+      r:Math.random()*3,
+      dx:(Math.random()-0.5)*0.5,
+      dy:(Math.random()-0.5)*0.5,
+      opacity:Math.random()*0.8+0.2
+    });
+  }
+}
+window.onresize=resize;
+resize();
+
+function draw(){
+  ctx.clearRect(0,0,w,h);
+
+  // 星星
+  stars.forEach(s=>{
+    ctx.fillStyle="white";
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+    s.y+=s.speed;
+    if(s.y>h){ s.y=0; s.x=Math.random()*w; }
+  });
+
+  // 流星
+  meteors.forEach((m,i)=>{
+    let grad=ctx.createLinearGradient(m.x,m.y,m.x+m.len,m.y+m.len*0.3);
+    grad.addColorStop(0,"rgba(255,255,255,"+m.opacity+")");
+    grad.addColorStop(1,"rgba(255,255,255,0)");
+    ctx.strokeStyle=grad;
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(m.x,m.y);
+    ctx.lineTo(m.x+m.len,m.y+m.len*0.3);
+    ctx.stroke();
+    m.x-=m.speed;
+    m.y+=m.speed*0.3;
+    m.opacity-=0.01;
+    if(m.opacity<=0) meteors.splice(i,1);
+  });
+  if(Math.random()<0.02){
+    meteors.push({
+      x:Math.random()*w,
+      y:0,
+      len:Math.random()*100+50,
+      speed:Math.random()*10+6,
+      opacity:1
+    });
+  }
+
+  // 粒子漂浮
+  particles.forEach(p=>{
+    ctx.fillStyle="rgba(255,255,255,"+p.opacity+")";
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fill();
+    p.x+=p.dx;
+    p.y+=p.dy;
+    if(p.x>w/2+200 || p.x<w/2-200) p.dx*=-1;
+    if(p.y>h/2+100 || p.y<h/2-100) p.dy*=-1;
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+</body>
+</html>
